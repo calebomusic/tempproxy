@@ -1,0 +1,35 @@
+<div class="proxy-container">
+  <header>
+    <%= @proxy.lifespan %> minutes proxy for <a href="<%= @proxy.destination_url %>"><%= @proxy.destination_url %></a>
+  </header>
+  <section>
+    Your proxy links:
+  </section>
+  <section>
+      <table>
+        <tr>
+          <td>URL</td>
+          <td>Time Created</td>
+          <td>Clicks</td>
+          <td>Details</td>
+          <td>Delete</td>
+        </tr>
+      <% @temp_links.sort_by { |a| a.created_at }.reverse.each do |link|  %>
+          <tr>
+            <td><a href="/temp_links/<%= link.slug %>"><%= link.slug %></a></td>
+            <td><%= time_ago_in_words(link.created_at) %> ago</td>
+            <td><%= link.clicks %></td>
+            <td>?</td>
+            <td><%= button_to 'Delete', temp_link_url(link), :method => :delete %></td>
+          </tr>
+
+        <% end %>
+      </table>
+  </section>
+  <section>
+    <form class="" action= "/proxies/<%= @proxy.id %>/temp_links" method="post">
+      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+      <input type="submit" value="Create New Link">
+    </form>
+  </section>
+</div>

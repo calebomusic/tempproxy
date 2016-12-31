@@ -1,0 +1,21 @@
+<section class="root-container">
+  <header class=root-header>
+    Create Temporary Proxy
+  </header>
+  <form class="root-form" action="/proxies" method="post">
+    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+    <label>URL</label>
+    <input type="text" value="" name="proxy[destination_url]">
+    <label>Minutes</label>
+    <select name="proxy[lifespan]">
+      <option value=5>5</option>
+      <option value=10>10</option>
+      <option value=15>15</option>
+      <option value=30>30</option>
+      <option value=60>60</option>
+      <option value=120>120</option>
+      <option value=180>180</option>
+  </select>
+    <input type="submit" value="Submit">
+  </form>
+</section>

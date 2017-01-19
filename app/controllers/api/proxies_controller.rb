@@ -1,20 +1,18 @@
-class ProxiesController < ApplicationController
+class Api::ProxiesController < ApplicationController
   def create
     @proxy = Proxy.new(proxy_params)
 
     if @proxy.save
       @proxy.enqueue_task
       create_temp_link(@proxy)
-      redirect_to proxy_url(@proxy)
+      render :show
     else
-      flash[:errors] = @proxy.errors.full_messages
-      render :root
+      render json: @proxy.errors.full_messages, status: 422
     end
   end
 
   def show
     @proxy = Proxy.find_by_id(params[:id])
-    @temp_links = @proxy.temp_links
   end
 
   private

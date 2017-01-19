@@ -7,11 +7,10 @@ module Crawl
       http = Curl.get(proxy.destination_url)
 
       proxy.crawl_success = true
-      proxy.crawl_failure = false
       proxy.save
       $redis.hset('proxy_pages', proxy.id, http.body_str)
     rescue => e
-      proxy.crawl_failure = true
+      proxy.crawl_success = false
       proxy.save
       p e
     end

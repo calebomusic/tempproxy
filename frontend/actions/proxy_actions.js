@@ -20,12 +20,10 @@ export function requestProxy(id) {
 
 export function fetchProxy(id) {
   return function(dispatch) {
-    dispatch(requestProxy(id))
+    dispatch(requestProxy(id));
     return fetch(`/api/proxies/${id}`)
       .then(response => response.json())
-      .then(proxy => {
-        dispatch(recieveProxy(proxy))
-      })
-      .catch(error => console.log(error))
+      .then(proxy => dispatch(recieveProxy(proxy)))
+      .catch(error => console.log(error));
   }
 }

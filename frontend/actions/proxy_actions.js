@@ -1,8 +1,8 @@
 import fetch from 'isomorphic-fetch';
 
-const FETCH_PROXY = 'FETCH_PROXY';
-const REQUEST_PROXY = 'REQUEST_PROXY';
-const RECEIVE_PROXY = 'RECEIVE_PROXY';
+export const FETCH_PROXY = 'FETCH_PROXY';
+export const REQUEST_PROXY = 'REQUEST_PROXY';
+export const RECEIVE_PROXY = 'RECEIVE_PROXY';
 
 export const recieveProxy = (proxy) => {
   return {
@@ -11,7 +11,7 @@ export const recieveProxy = (proxy) => {
   }
 }
 
-function requestProxy(id) {
+export function requestProxy(id) {
   return {
     type: REQUEST_PROXY,
     id
@@ -24,8 +24,8 @@ export function fetchProxy(id) {
     return fetch(`/api/proxies/${id}`)
       .then(response => response.json())
       .then(proxy => {
-        console.log(proxy);
         dispatch(recieveProxy(proxy))
       })
+      .catch(error => console.log(error))
   }
 }

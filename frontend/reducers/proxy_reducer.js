@@ -7,8 +7,7 @@ const ProxyReducer = (state = {}, action) => {
   let newState = merge({}, state)
   switch (action.type) {
     case RECEIVE_PROXY:
-      newState = action.proxy
-      return newState
+      return action.proxy
     default:
       return newState
   }

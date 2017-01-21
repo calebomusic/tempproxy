@@ -7,7 +7,7 @@ class Api::ProxiesController < ApplicationController
       create_temp_link(@proxy)
       render :show
     else
-      render json: @proxy.errors.full_messages, status: 422
+      render json: @proxy.errors.full_messages
     end
   end
 

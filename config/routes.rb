@@ -12,9 +12,10 @@ Rails.application.routes.draw do
       resources :temp_links, only: [ :index, :create ]
     end
 
-    resources :temp_links, only: [ :show ], param: :slug
     resources :temp_links, only: [ :destroy ]
   end
+
+  resources :temp_links, only: [ :show ], param: :slug
 
   root to: 'static_pages#root'
 end

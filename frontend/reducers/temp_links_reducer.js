@@ -4,12 +4,11 @@ import {
 import { merge } from 'lodash';
 
 const TempLinksReducer = (state = [], action) => {
-  let newState = merge({}, state);
   switch (action.type) {
     case RECEIVE_TEMP_LINKS:
       return action.tempLinks;
     default:
-      return newState;
+      return [];
   }
 }
 

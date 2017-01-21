@@ -12,11 +12,9 @@ import { fetchTempLinks } from '../actions/temp_link_actions';
 
 const Root = ({store}) => {
   const _fetchProxy = (ownProps) => {
-    if (!store.getState().proxy.id) {
-      const proxyId = ownProps.params.proxyId;
-      store.dispatch(fetchProxy(proxyId));
-      store.dispatch(fetchTempLinks(proxyId));
-    }
+    const proxyId = ownProps.params.proxyId;
+    store.dispatch(fetchProxy(proxyId));
+    store.dispatch(fetchTempLinks(proxyId));
   }
 
   return(

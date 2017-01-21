@@ -24,7 +24,6 @@ export function fetchTempLinks(proxyId) {
     return fetch(`/api/proxies/${proxyId}/temp_links`)
       .then(response => response.json())
       .then(tempLinks => {
-        debugger
         dispatch(receiveTempLinks(tempLinks))
       }
         )
@@ -36,28 +35,28 @@ export function createTempLink(proxyId) {
   return (dispatch) => {
     return fetch(`api/proxies/${proxyId}/temp_links`, {
         method: "POST",
+        credentials: 'same-origin',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.getElementsByName('csrf-token')[0].getAttribute('content')
         },
         body: JSON.stringify({
           proxyId
         })})
-      .then(response => response.json())
-      .then(tempLinks => dispatch(receiveTempLinks()))
+      .then(() => dispatch(fetchTempLinks(proxyId)))
       .catch(error => console.log(error))
   }
 }
 
-export function deleteTempLink(id) {
+export function deleteTempLink(id, proxyId) {
   return (dispatch) => {
     return fetch(`api/temp_links/${id}`, {
         method: "DELETE",
         body: JSON.stringify({
           id
         })})
-      .then(response => response.json())
-      .then(tempLinks => dispatch(receiveTempLinks()))
+      .then(() => dispatch(fetchTempLinks(proxyId)))
       .catch(error => console.log(error))
   }
 }

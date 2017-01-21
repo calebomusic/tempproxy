@@ -5,13 +5,22 @@ class Proxy extends React.Component {
   constructor(props) {
     super(props)
 
+    this.state = { tempLinks: [] }
+
     this.renderTempLinks = this.renderTempLinks.bind(this);
     this.createTempLink = this.createTempLink.bind(this);
     this.handleVisit = this.handleVisit.bind(this);
+    this.deleteTempLink = this.deleteTempLink.bind(this);
   }
 
   componentDidMount() {
+    const tempLinks = this.props.tempLinks;
+    this.setState({ tempLinks });
+  }
 
+  componentWillReceiveProps(props) {
+    const tempLinks = props.tempLinks;
+    this.setState({ tempLinks });
   }
 
   handleVisit(link) {
@@ -19,7 +28,7 @@ class Proxy extends React.Component {
   }
 
   deleteTempLink(id){
-    return () => this.props.deleteTempLink(id);
+    return () => this.props.deleteTempLink(id, this.props.proxy.id);
   }
 
   renderTempLinks() {
@@ -31,7 +40,7 @@ class Proxy extends React.Component {
                             <td>Delete</td>
                           </tr>
 
-    const tempLinks = this.props.tempLinks.map( (link, i) => (
+    const tempLinks = this.state.tempLinks.map( (link, i) => (
       <tr key={i}>
         <td>
           <a href={`/temp_links/${link.slug}`}>{link.slug}</a>
@@ -46,7 +55,7 @@ class Proxy extends React.Component {
           ?
         </td>
         <td>
-          <button onClick={this.props.deleteTempLink(link.id)}>Delete</button>
+          <button onClick={this.deleteTempLink(link.id)}>Delete</button>
         </td>
       </tr>)
     )
@@ -91,5 +100,3 @@ class Proxy extends React.Component {
 
 
 export default withRouter(Proxy);
-
-// onClick={this.handleVisit(link)

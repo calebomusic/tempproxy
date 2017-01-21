@@ -22,8 +22,7 @@ class Api::TempLinksController < ApplicationController
 
   def destroy
     temp_link = TempLink.find_by_id(params[:id])
-    proxy = temp_link.proxy
-    temp_link.destroy
+    temp_link.destroy!
     render json: {}
   end
 end

@@ -2,9 +2,13 @@
   "name": "tempproxy",
   "version": "1.0.0",
   "description": "== README",
-  "main": "webpack.config.js",
+  "directories": {
+  "doc": "docs",
+  "test": "test"
+  },
+  "main": "index.js",
   "scripts": {
-    "start": "node webpack.config.js"
+    "heroku-postbuild": "webpack --config webpack.config.prod.js"
   },
   "engines": {
     "node": "6.2.1",

@@ -11,7 +11,7 @@ import { fetchTempLinks } from './actions/temp_link_actions'
 
 document.addEventListener("DOMContentLoaded", () => {
   const store = configureStore();
-  console.log('hello WORLD')
+  console.log('hello WORLD');
   const root = document.getElementById('root');
   if (root) {
     ReactDOM.render(<Root store={store}></Root>, root);

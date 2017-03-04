@@ -1,1 +1,12 @@
-<%= @proxy_page %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script type="text/javascript">
+      <% if @destination_page[:url] %>
+        window.destinationUrl = "<%= @destination_page[:url] %>"
+      <% end %>
+    </script>
+  </head>
+  <%= @destination_page[:body].html_safe if @destination_page[:body] %>
+</html>

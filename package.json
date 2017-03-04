@@ -4,8 +4,7 @@
   "description": "== README",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "heroku-postbuild": "webpack --config webpack.config.prod.js"
+    "postinstall": "webpack -p --config ./webpack.prod.config.js --progress"
   },
   "engines": {
     "node": "6.2.1",

@@ -2,9 +2,9 @@
   "name": "tempproxy",
   "version": "1.0.0",
   "description": "== README",
-  "main": "index.js",
+  "main": "webpack.config.js",
   "scripts": {
-    "postinstall": "./node_modules/.bin/webpack"
+    "start": "node webpack.config.js"
   },
   "engines": {
     "node": "6.2.1",

@@ -9,9 +9,13 @@ class TempLinksController < ApplicationController
     lifespan = proxy.lifespan
 
     if @temp_link.created_at > (Time.now - (@temp_link.proxy.lifespan * 60))
-      @proxy_page = $redis.hget('proxy_pages', proxy.id)
-      if @proxy_page
-        render html: @proxy_page.html_safe
+      @destination_page = {
+        body: $redis.hget('proxy_pages', proxy.id),
+        url: proxy.destination_url
+      }
+
+      if @destination_page[:body]
+        render :show
       else
         render html: "Page has not been retrieved. Dwell on the beauty of life. Watch the stars, and see yourself running with them. Also try refreshing."
       end

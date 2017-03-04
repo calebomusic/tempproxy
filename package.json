@@ -4,7 +4,8 @@
   "description": "== README",
   "main": "index.js",
   "scripts": {
-    "postinstall": "webpack --config webpack.config.prod.js"
+    "start": "node index.js",
+    "postinstall": "webpack --config webpack.config.prod.js --progress"
   },
   "engines": {
     "node": "6.2.1",

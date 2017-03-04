@@ -6,7 +6,6 @@
   "doc": "docs",
   "test": "test"
   },
-  "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "heroku-postbuild": "webpack --config webpack.config.prod.js"

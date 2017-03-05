@@ -9,7 +9,9 @@
   },
   "scripts": {
     "start": "node test.js",
-    "postinstall": "webpack --config webpack.config.prod.js"
+    "postinstall": "./node_modules/.bin/webpack",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "heroku-postbuild": "webpack --config webpack.config.prod.js"
   },
   "engines": {
     "node": "6.10.0",

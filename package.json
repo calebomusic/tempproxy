@@ -8,7 +8,8 @@
     "test": "test"
   },
   "scripts": {
-    "start": "node ./app/assets/javascripts/application.js"
+    "webpack:deploy": "webpack --config=webpack/webpack.config.js -p",
+    "heroku-postbuild": "npm run webpack:deploy"
   },
   "engines": {
     "node": "6.10.0",

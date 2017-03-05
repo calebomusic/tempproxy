@@ -4,13 +4,11 @@
   "description": "== README",
   "main": "index.js",
   "directories": {
-  "doc": "docs",
-  "test": "test"
+    "doc": "docs",
+    "test": "test"
   },
   "scripts": {
-    "postinstall": "./node_modules/.bin/webpack",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku-postbuild": "webpack --config webpack.config.prod.js"
+    "start": "./node_modules/.bin/webpack",
   },
   "engines": {
     "node": "6.10.0",

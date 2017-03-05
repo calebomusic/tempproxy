@@ -8,7 +8,6 @@
     "test": "test"
   },
   "scripts": {
-    "start": "",
     "heroku-postbuild": "webpack -p --config webpack.prod.config.js"
   },
   "engines": {

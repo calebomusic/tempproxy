@@ -1,205 +1,64 @@
 # TempProxy
 
 [TempProxy live](http://shmasana.herokuapp.com/)
-![Shmasana!](https://github.com/calebomusic/Shmasana/blob/master/docs/screenshots/charles.png)
+![TempProxy!](https://github.com/calebomusic/Shmasana/blob/master/docs/screenshots/charles.png)
 
-Description
+TempProxy allows you to create temporary links to proxied site. Perhaps you're interviewing a candidate and want to send a temporary link to a document whose location you want hidden. Perhaps you want to preview your ephemeral art for 15 minutes. If so, TempProxy is for you!
 
 Built with Ruby on Rails, React, Redux, Redis, Curb, and PostgresSQL.
 
 ## Architecture
 
-This section describes the frontend application state, the Implementation of optimistic updating, the structure of `Users`, `Workspaces`, and `Tasks`.
+Picture
 
-### Application State
+The picture above captures the data flow and back-end architecture of the app.
 
-Following the Redux framework, there is a single source of truth, the application state. Application state includes the loading state, current project, current user, sidebar state, current task, tasks, view, and current workspace. The user, project, task, and workspace slices of state hold the respective properties and association info (associations are described in greater detail below). All the workspace's task are held in state to avoid additional AJAX requests and enable fluid transitions between views. The task includes the present task and past task actions to support optimistic updating.
+When a `Proxy` is created two events occur: first, a proxy is saved to the database (with a `destination_url`, `lifespan`, and time stamp properties), second, a job to crawl the destination_url is added to the job queue. A worker then pulls the job off the job queue, sending a get request the `destination_url`, say, example.com. Example.com will then respond, on success, the body of the response will be cached in Redis and the proxy will be saved as successfully crawled. When a user visits a `temp_link` of the proxy, the body of the proxied page is retrieved from the cache and displayed for the users viewing pleasure (so long as link has not exhausted its lifespan).
 
-An example application state is:
+## Snippets
 
-```javascript
-  {
-    loading: false,
-    project: {
-      id: 1,
-      name: "Spaceship",
-      tasks: Array[9],
-      workspace_id: 1
-    },
-    session: {
-      CurrentUser: {
-        assigned_tasks: [ 4, 6, 8, ... ]
-        created_tasks: [ 14, 19, 20, ...],
-        id: 2,
-        projects: Array[6],
-        username: "Charles",
-        workspaces: [1, 2, 3]
-      }
-    },
-    sidebar: true,
-    task: {
-      past: Array[1],
-      present: {
-        assignee:Object
-        assignee_id:2
-        author:Object
-        author_id:2
-        comments:Array[2]
-        completed:true
-        completed_at:"1996-10-03T16:16:15.374Z",
-        created_at:"2016-12-03T01:28:31.166Z",
-        description: "Avoid space horror",
-        due_date:null,
-        id:22,
-        project:Object,
-        project_id:1,
-        title:"Collect movie titles for the trip",
-        workspace_id:1
-    },
-    tasks: Array[9],
-    view: 'all',
-    workspace: {
-      1:
-        {
-          id: 1,
-          name: "Occupy Mars",
-          projects: Array[6],
-          tasks: Array[42],
-          team: Array[7],
-          users: Array[7]
-        }
-    }
-
-  }
-```
-
-### Optimistic Updating
-
-Shmasana optimistically updates on title and description changes for a task, allowing users to edit tasks seamlessly without interruption.
-
-Optimistic updating is enabled by utilizing a higher-order reducer, `OptimisticReducer`, which wraps around the `TaskReducer`:
-
-```javascript
-const OptimisticReducer = (reducer) => {
-  return (oldState = { past: [], present: {}}, action) => {
-    let newState = merge({}, oldState)
-    switch (action.status) {
-      case BEGIN:
-        return {
-          past: [ ...newState.past, action],
-          present: reducer(newState, action)
-        }
-      case END:
-        newState.past.shift();
-        return newState;
-      case REVERT:
-        const prevAction = newState.past[newState.past.length - 1];
-        return {
-          past: [],
-          present: reducer(newState, prevAction)
-        }
-      default:
-        return oldState;
-    }
-  }
-}
-```
-
-The `OptimisticReducer` stores the past task actions. `present` returns the present task state. On change of a task's properties the `updateTask` action is dispatched. This action hits the middleware which dispatches `receiveTaskBegin` and makes an AJAX request:
-
-```javascript
-const TaskMiddleware = store => next => action => {
-  ...
-  switch (action.type) {
-    case UPDATE_TASK:
-      store.dispatch(receiveTaskBegin(action.task));
-      updateTask(action.task, action.task.workspace_id, successfulUpdate, revertOnError);
-    return next(action);
-    ...
-  }
-}
-```
-
-`receiveTaskBegin` is passed to the `OptimisticReducer` which stores the action due to the status payload and passes the action to the `TaskReducer` which updates the store. The AJAX request receives successfulUpdate as a success callback which dispatches `receiveTaskEnd`. Because `receiveTaskEnd`carries the status `END` the earliest `receiveTaskBegin` action is removed from the past array. The error callback, `revertOnError` will dispatch the last action stored in past array.
-
-
-![Shmasana provides a framework to get things done](https://github.com/calebomusic/Shmasana/blob/master/docs/screenshots/landing.png)
-
-### Users and Workspaces
-
-The next sections describe the implemented associations.
-
-Users and Workspaces stand in a many to many relationship. Workspaces then mimic Asana's team functionality, a workspace may have many members, members may be invited to workspaces, and they may create projects and tasks in such workspaces. `joinUserWorkspace` joins Users and Workspaces on `workspace_id` and `user_id` respectively. Users then access projects through workspaces. In the user model the associations are:
+In more detail, when a request to create a proxy is received, this is handled by the create action in the `Api::Proxy` controller:
 
 ```ruby
-has_many :join_user_workspaces
-has_many :workspaces,
-  through: :join_user_workspaces,
-  source: :workspace
+def create
+  @proxy = Proxy.new(proxy_params)
 
-has_many :projects,
-  through: :workspaces,
-  source: :projects
-
-has_many :assigned_tasks,
-  class_name: :Task,
-  foreign_key: :assignee_id
-
-has_many :created_tasks,
-  class_name: :Task,
-  foreign_key: :author_id
-
-has_many :comments,
-  foreign_key: :author_id
+  if @proxy.save
+    @proxy.enqueue_task
+    create_temp_link(@proxy)
+    render :show
+  else
+    render json: @proxy.errors.full_messages
+  end
+end
 ```
 
-Upon successfully creating an account, a workspace is created by dispatching the `createWorkspace` action which updates the frontend store and makes a request to create a workspace.
-Upon successfully creating the workspace, the user is redirected to that workspace.
-
-Successful signup callback:
-
-```javascript
-const successfulSignup = (user) => {
-  store.dispatch(receiveCurrentUser(user));
-  store.dispatch(createWorkspace({name: user.username}))
-}
-```
-
-### Tasks
-
-Upon arriving at a workspace the user may create additional workspaces, projects, and tasks.
-
-Tasks must belong to a user via `author_id` and workspace via `workspace_id`.
-They may be assigned to a user via `assignee_id`, a project via `project_id.`
-Tasks may also have titles, descriptions, due dates, and may or may not be completed. In the `Task` model the associations are instantiated as follows:
+The `enqueue_task` method, enqueue's a `Crawl` task into the job queue. A worker dequeues the task performing:
 
 ```ruby
-  belongs_to :author,
-    class_name: :User
-  belongs_to :project
-  belongs_to :workspace
-  belongs_to :assignee,
-    class_name: :User
-  has_one :workspace,
-    through: :project
-  has_many :comments,
-    class_name: :Comment
+def self.perform(proxy_id)
+  begin
+    proxy = Proxy.find_by_id(proxy_id)
+    http = Curl.get(proxy.destination_url)
+
+    proxy.crawl_success = true
+    proxy.save
+    $redis.hset('proxy_pages', proxy.id, http.body_str)
+  rescue => e
+    proxy.crawl_success = false
+    proxy.save
+    p e
+  end
 ```
 
-Users are allowed to mark tasks in their workspace complete, assign tasks to other users, or invite other users to the workspace.
-
-Tasks need not be assigned to a project, project-less tasks reside in the workspace route: `/:userId/:workspaceId/list/:taskId`
-
-![Shmasana supports comments](https://github.com/calebomusic/Shmasana/blob/master/docs/screenshots/linda.png)
+First, the `destination_url` is read off the proxy object, then a get request is sent to the `destination_url`. The crawl is marked successful, the proxy saved (as successfully crawled), and then the body of the the response is cached in the Redis instance. If the crawl fails, the proxy is saved (as unsuccessfully crawled), and the error returned.
 
 ## Future Directions for the Project
 
-In addition to the features already implemented, I plan to continue work on this project.  The next steps for Shmasana are:
+In addition to the features already implemented, I plan to continue work on this project.  The next steps for TempProxy are:
 
-### Email Invite
+### Fix Asset Failure
+Often, not all assets of the proxied site will be rendered, due to their links being relative. I'm currently working on a function to rewrite asset scripts to absolute links, so that they are fetched from the original location.
 
-Users may add other users to their workspace, but no email confirmation is involved. Email confirmation will be utilized with ActionMailer and Sendgrid.
-
-### Search
-
-Users will be able to search for tasks by their description, title, and tags.
+### Keep All Links in House
+Several links will take the user away from the TempProxy.com because they escape being unwritten. An efficient algorithm, with more extensive coverage should keep the user in the TempProxy, no matter what link they click on.

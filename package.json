@@ -2,17 +2,17 @@
   "name": "tempproxy",
   "version": "1.0.0",
   "description": "== README",
+  "main": "index.js",
   "directories": {
   "doc": "docs",
   "test": "test"
   },
   "scripts": {
-    "start": "node index.js",
     "heroku-postbuild": "webpack --config webpack.config.prod.js"
   },
   "engines": {
     "node": "6.2.1",
-    "npm": "3.9.3"
+    "npm": "4.3.0"
   },
   "repository": {
     "type": "git",

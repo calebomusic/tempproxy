@@ -7,9 +7,7 @@
     "doc": "docs",
     "test": "test"
   },
-  "scripts": {
-    "heroku-postbuild": "npm run webpack:deploy"
-  },
+
   "engines": {
     "node": "6.10.0",
     "npm": "4.3.0"

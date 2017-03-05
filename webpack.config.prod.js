@@ -1,11 +1,12 @@
-const webpack = require("webpack");
+const path = require('path');
+var webpack = require('webpack');
 
 module.exports = {
   context: __dirname,
-  entry: "./frontend/tempproxy.jsx",
+  entry: './frontend/tempproxy.jsx',
   output: {
-    path: "./app/assets/javascripts",
-    filename: "bundle.js"
+    path: path.join(__dirname, 'app', 'assets', 'javascripts'),
+    filename: 'bundle.js'
   },
   plugins:[
     new webpack.DefinePlugin({
@@ -19,20 +20,19 @@ module.exports = {
       }
     })
   ],
+  resolve: {
+    extensions: ['', '.js', '.jsx']
+  },
   module: {
     loaders: [
       {
         test: /\.jsx?$/,
-        exclude: /node_modules/,
-        loader: 'babel',
+        exclude: /(node_modules|bower_components)/,
+        loader: "babel",
         query: {
-          presets: ['react', 'es2015']
+          presets: ['babel-preset-react', 'babel-preset-es2015']
         }
       }
     ]
   },
-  devtool: 'source-map',
-  resolve: {
-    extensions: ["", ".js", ".jsx"]
-  }
-};
+  devtool: 'source-maps'

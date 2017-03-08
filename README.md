@@ -1,15 +1,12 @@
 # TempProxy
 
-[TempProxy live](http://shmasana.herokuapp.com/)
-![TempProxy!](https://github.com/calebomusic/Shmasana/blob/master/docs/screenshots/charles.png)
-
 TempProxy allows you to create temporary links to proxied site. Perhaps you're interviewing a candidate and want to send a temporary link to a document whose location you want hidden. Perhaps you want to preview your ephemeral art for 15 minutes. If so, TempProxy is for you!
 
 Built with Ruby on Rails, React, Redux, Redis, Curb, and PostgresSQL.
 
 ## Architecture
 
-Picture
+![TempProxy!](https://github.com/calebomusic/tempproxy/blob/master/docs/tempproxy.png)
 
 The picture above captures the data flow and back-end architecture of the app.
 
